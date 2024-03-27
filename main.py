@@ -20,46 +20,95 @@ from train import *
 from metrics import *
 from dataset import *
 
-def select_model(choice=1):
-    if choice==1:
-        return mobilenet(num_classes=2)
-    elif choice==2:
-        return efficientnet(num_classes=2)
-    elif choice==3:
-        return inceptionv3(num_classes=2)
-
-
-train_dataloader,test_dataloader=create_loaders()
+train_dataloader,val_dataloader,test_dataloader=create_loaders('/content/drive/MyDrive/fusedmammonet/ddsm')
 print(f'Training dataset size: {len(train_dataloader)}')
 print(f'Test dataset size: {len(test_dataloader)}')
-model= select_model(1)
+
+
+select_model={1:mobilenet(num_classes=5),
+              2:efficientnet(num_classes=5),
+              3:inceptionv3(num_classes=5),
+              4:ensemble(mobilenet_tl(num_classes=5),efficientnet_tl(num_classes=5),inceptionv3_tl(num_classes=5),num_classes=5),
+              5:ensemble_tl(mobilenet_tl(num_classes=5),efficientnet_tl(num_classes=5),inceptionv3_tl(num_classes=5),num_classes=5)
+              }
+
+model= select_model[1]
+optimizer = torch.optim.Adam(params=model.parameters(),
+                             lr=0.001)
+loss_fn = torch.nn.CrossEntropyLoss()
+
+results =train(model=model,
+                                      train_dataloader=train_dataloader,
+                                      test_dataloader=val_dataloader,
+                                      optimizer=optimizer,
+                                      loss_fn=loss_fn,
+                                      epochs=10,
+                                      device='cuda' if torch.cuda.is_available() else 'cpu',
+                              save_path='/content/drive/MyDrive/fusedmammonet/models/best_model_mobilenet.pth')
+plot_and_save_loss_curves(results,save_folder='/content/drive/MyDrive/fusedmammonet/results', save_name="mobilenet_loss_curves")
+
+model= select_model[2]
+optimizer = torch.optim.Adam(params=model.parameters(),
+                             lr=0.001)
+loss_fn = torch.nn.CrossEntropyLoss()
+
+results =train(model=model,
+                                      train_dataloader=train_dataloader,
+                                      test_dataloader=val_dataloader,
+                                      optimizer=optimizer,
+                                      loss_fn=loss_fn,
+                                      epochs=10,
+                                      device='cuda' if torch.cuda.is_available() else 'cpu',
+                              save_path='/content/drive/MyDrive/fusedmammonet/models/best_model_efficientnet.pth')
+plot_and_save_loss_curves(results,save_folder='/content/drive/MyDrive/fusedmammonet/results', save_name="efficientnet_loss_curves")
+
+model= select_model[3]
 # Create optimizer and loss function
 optimizer = torch.optim.Adam(params=model.parameters(),
                              lr=0.001)
 loss_fn = torch.nn.CrossEntropyLoss()
 
-mobilenet_results =train(model=model,
+results =train(model=model,
                                       train_dataloader=train_dataloader,
-                                      test_dataloader=test_dataloader,
+                                      test_dataloader=val_dataloader,
                                       optimizer=optimizer,
                                       loss_fn=loss_fn,
-                                      epochs=3,
+                                      epochs=10,
                                       device='cuda' if torch.cuda.is_available() else 'cpu',
-                              save_path='models/best_model_mobilenet.pth')
+                              save_path='/content/drive/MyDrive/fusedmammonet/models/best_model_inceptionv3.pth')
+plot_and_save_loss_curves(results,save_folder='/content/drive/MyDrive/fusedmammonet/results', save_name="inceptionv3_loss_curves")
+
+model= select_model[4]
+# Create optimizer and loss function
+optimizer = torch.optim.Adam(params=model.parameters(),
+                             lr=0.001)
+loss_fn = torch.nn.CrossEntropyLoss()
+
+results =train(model=model,
+                                      train_dataloader=train_dataloader,
+                                      test_dataloader=val_dataloader,
+                                      optimizer=optimizer,
+                                      loss_fn=loss_fn,
+                                      epochs=10,
+                                      device='cuda' if torch.cuda.is_available() else 'cpu',
+                              save_path='/content/drive/MyDrive/fusedmammonet/models/best_model_ensemble.pth')
+plot_and_save_loss_curves(results,save_folder='/content/drive/MyDrive/fusedmammonet/results', save_name="loss_curves")
+
+model= select_model[5]
 y_true = []
 y_pred = []
 y_scores=[]
 # Initialize your model (efficientnet_b0_model) and test_loader
 
 # Rest of your code to get predictions
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model=model.to(device)
+#model=model.to('cpu')
 for inputs, labels in test_dataloader:
-    output1 = model(inputs.to(device))  # Feed Network
+    output1 = model(inputs.to('cpu'))  # Feed Network
     probs_1 = torch.softmax(output1, dim=1)
     _, predicted_class = torch.max(probs_1, 1)
     labels = labels.data.numpy()
     y_true.extend(labels)
     y_pred.extend(predicted_class.cpu().data.numpy())
     y_scores.extend(probs_1.cpu().data.numpy())
-ops(y_true,y_pred,y_scores,save_folder='results',num_classes=2)
+ops(y_true,y_pred,y_scores,save_folder='/content/drive/MyDrive/fusedmammonet/results',num_classes=5)
+     
