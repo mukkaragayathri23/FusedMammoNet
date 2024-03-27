@@ -6,7 +6,7 @@ Block diagram of FusedMammoNet
 
 -> install the libraries present in requirements.txt in the command prompt
 
-pip install requirements.txt
+!pip install requirements.txt
 
 
 
