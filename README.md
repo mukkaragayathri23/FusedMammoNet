@@ -1,12 +1,12 @@
 # FusedMammoNet
 
-Block diagram of FusedMammoNet
+**Block diagram of FusedMammoNet**
 
 ![image](https://github.com/mukkaragayathri23/FusedMammoNet/assets/121806347/7cc1ca6c-d89f-465e-a43c-33dbb3304020)
 
 -> install the libraries present in requirements.txt in the command prompt
 
-!pip install requirements.txt
+`!pip install requirements.txt`
 
 
 
@@ -18,6 +18,6 @@ Block diagram of FusedMammoNet
 
 Run main.py in the command prompt
 
-!python3 main.py
+`!python3 main.py`
 
 
