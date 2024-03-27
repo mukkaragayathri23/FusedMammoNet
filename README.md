@@ -14,4 +14,10 @@ Block diagram of FusedMammoNet
   
   download the dataset from the above link and upload it into ddsm folder
 
-->
+-> Run each cell in the notebook in colab (Requirements: system RAM greater than 20GB and GPU RAM minimum 15GB) OR
+
+Run main.py in the command prompt
+
+!python3 main.py
+
+
